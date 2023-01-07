@@ -1,88 +1,58 @@
 import React from "react";
 import ProductCard from "../components/ProductCard";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 export default function Home() {
 
     const [products, setProducts] = React.useState([]);
-    const [sortBy, setSortBy] = React.useState('');
-    const [displayedProducts, setDisplayedProducts] = React.useState([]);
     const [search, setSearch] = React.useState('');
     const [msg, setMsg] = React.useState('');
+    const [sortBy, setSortBy] = React.useState('');
+
+    const [searchParams, setSearchParams] = useSearchParams({});
 
     const getProducts = async () => {
-        const response = await fetch('http://127.0.0.1:5000/products');
+        const searchParam = searchParams.get('search');
+        const sortParam = searchParams.get('sort');
+        let response = {};
+        if (searchParam && sortParam) {
+            response = await fetch(`http://127.0.0.1:5000/products?search=${searchParam}&sort=${sortParam}`);
+        } else if (searchParam) {
+            response = await fetch(`http://127.0.0.1:5000/products?search=${searchParam}`);
+        } else if (sortParam) {
+            response = await fetch(`http://127.0.0.1:5000/products?sort=${sortParam}`);
+        } else {
+            response = await fetch('http://127.0.0.1:5000/products');
+        }
         const data = await response.json();
         setProducts(data);
-        setDisplayedProducts(data);
     };
 
     React.useEffect(() => {
         getProducts();
-    }, []);
+    }, [searchParams]);
 
     function handleSort(e) {
+        e.preventDefault();
         setSortBy(e.target.value);
-        if (e.target.value === 'nd') {
-            setDisplayedProducts((prev) =>
-                prev.slice().sort((a, b) => {
-                    const nameA = a.name.toUpperCase();
-                    const nameB = b.name.toUpperCase();
-                    if (nameA < nameB) {
-                        return 1;
-                    }
-                    if (nameA > nameB) {
-                        return -1;
-                    }
-                    return 0;
-                })
-            );
-        } else if (e.target.value === 'na') {
-            setDisplayedProducts((prev) =>
-                prev.slice().sort((a, b) => {
-                    const nameA = a.name.toUpperCase();
-                    const nameB = b.name.toUpperCase();
-                    if (nameA < nameB) {
-                        return -1;
-                    }
-                    if (nameA > nameB) {
-                        return 1;
-                    }
-                    return 0;
-                })
-            );
-        } else if (e.target.value === 'pd') {
-            setDisplayedProducts((prev) =>
-                prev.slice().sort((a, b) => b.price - a.price)
-            );
-        } else if (e.target.value === 'pa') {
-            setDisplayedProducts((prev) =>
-                prev.slice().sort((a, b) => a.price - b.price)
-            );
-        }
+        setSearchParams(searchParams.get("search") ? { sort: e.target.value, search: searchParams.get("search") } : { sort: e.target.value });
     }
 
     function filterProducts(e) {
         e.preventDefault();
-        setDisplayedProducts(
-            products.filter(
-                (x) =>
-                    x.name.toUpperCase().includes(search.toUpperCase())
-            )
-        );
-        setSortBy('');
+        setSearchParams(sortBy ? { search: search, sort: sortBy } : { search: search });
         setSearch('');
         setMsg(`Results for: "${search}"`);
     }
 
     function clear() {
-        setDisplayedProducts(products);
+        setSearchParams({});
         setSearch('');
         setMsg('');
         setSortBy('');
     }
 
-    const productElems = displayedProducts.map(x => (
+    const productElems = products.map(x => (
         <ProductCard
             key={x._id}
             name={x.name}
@@ -124,10 +94,10 @@ export default function Home() {
                 onChange={handleSort}
             >
                 <option value="">Sort by</option>
-                <option value="na">Name ascending</option>
-                <option value="nd">Name descending</option>
-                <option value="pa">Price ascending</option>
-                <option value="pd">Price descending</option>
+                <option value="name_asc">Name ascending</option>
+                <option value="name_desc">Name descending</option>
+                <option value="price_asc">Price ascending</option>
+                <option value="price_desc">Price descending</option>
             </select>
             {msg && (
                 <div className="d-flex justify-content-between align-items-center">

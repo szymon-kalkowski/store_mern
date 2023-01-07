@@ -32,9 +32,9 @@ export default function UpdateProduct() {
             },
             body: JSON.stringify({
                 name: data.name,
-                price: data.price,
+                price: +data.price,
                 description: data.description,
-                amount: data.amount,
+                amount: +data.amount,
                 size: data.size
             })
         })
@@ -42,9 +42,9 @@ export default function UpdateProduct() {
         setProduct({
             _id: id,
             name: data.name,
-            price: data.price,
+            price: +data.price,
             description: data.description,
-            amount: data.amount,
+            amount: +data.amount,
             size: data.size
         });
     };

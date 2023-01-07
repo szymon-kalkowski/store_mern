@@ -19,9 +19,9 @@ export default function AddProduct() {
             },
             body: JSON.stringify({
                 name: data.name,
-                price: data.price,
+                price: +data.price,
                 description: data.description,
-                amount: data.amount,
+                amount: +data.amount,
                 size: data.size
             })
         })

@@ -10,7 +10,7 @@ export default function ProductCard(props) {
                 'Content-Type': 'application/json',
             },
         })
-        props.setProducts(prev => prev.filter(x => x._id !== props.id))
+        props.setProducts(prev => prev.filter(x => x._id !== props.id));
     };
 
     return (
@@ -23,6 +23,7 @@ export default function ProductCard(props) {
                 <p className="my-1">Amount: {props.amount}</p>
             </div>
             <div className="d-flex justify-content-between flex-column align-items-end">
+                <Link to={`/report/${props.id}`} className="btn btn-secondary my-3 d-block">Report</Link>
                 <Link to={`/update/${props.id}`} className="btn btn-primary my-3 d-block">Edit</Link>
                 <button className="btn btn-danger my-3" onClick={deleteProduct}>Delete</button>
             </div>
